@@ -62,6 +62,7 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
                         })}
                     </div>,
                 )}
+                <input type="text" id="filter" name="filter" className="inputBox" placeholder="filter by filename" onKeyUp={this.keyUpHandler} />
             </div>
         );
     }
@@ -73,6 +74,11 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
             this.props.onToolbarItemSelected(toolbarItem);
         });
     }
+
+    keyUpHandler(e) {
+        console.log(e.target.value)
+    }
+
 
     private isComponentActive(selected: ToolbarItemName, componentRegistration: IToolbarItemRegistration) {
         return selected

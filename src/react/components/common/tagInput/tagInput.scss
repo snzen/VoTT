@@ -1,12 +1,12 @@
 @import "../../../../index.scss";
 
-$tagInputWidth: 250px;
+$tagInputWidth: 80px;
 
 .tag {
     &-input {
         user-select: none;
         background: $lighter-1;
-        min-width: $tagInputWidth;
+        width: $tagInputWidth;
 
         &-text-input-row {
             display: flex;
@@ -146,11 +146,12 @@ $tagInputWidth: 250px;
         }
 
         &-toolbar {
-            display: flex;
-            flex-direction: row;
+            // display: flex;
+            // flex-direction: row;
             &-item {
                 color: #ccc;
                 padding: 1px;
+                display: inline-block;
             }
             &-item:hover {
                 color: white;

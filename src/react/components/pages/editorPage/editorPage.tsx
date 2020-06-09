@@ -161,7 +161,16 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     public render() {
         const { project } = this.props;
         const { assets, selectedAsset } = this.state;
-        const rootAssets = assets.filter((asset) => !asset.parent);
+
+        var filter = document.getElementsByName('filter').item(0) as HTMLInputElement
+
+        const rootAssets = assets.filter((asset) => {
+            if (asset.parent) return false
+            else if(filter.value.length < 1 ) return true
+            else return asset.name.includes(filter.value)
+        });
+
+        console.log("assets: " + rootAssets.length)
 
         if (!project) {
             return (<div>Loading...</div>);
