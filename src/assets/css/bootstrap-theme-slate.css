@@ -32,7 +32,7 @@
   --warning: #f89406;
   --danger: #ee5f5b;
   --light: #e9ecef;
-  --dark: #272B30;
+  --dark: #232221;
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
@@ -74,7 +74,7 @@ body {
   line-height: 1.5;
   color: #aaa;
   text-align: left;
-  background-color: #272B30;
+  background-color: #232221;
 }
 
 [tabindex="-1"]:focus {
@@ -9991,7 +9991,7 @@ legend {
 }
 
 .tag-input-toolbar{
-  font-size: 1.6em !important;
+  font-size: 1.2em !important;
 }
 
 .tag-input-title{
@@ -10000,7 +10000,7 @@ legend {
 
 .inputBox{
   width: 250px;
-  background-color: var(--primary);
-  border: 1px solid var( --secondary);
+  background-color: #1d1d1d;
+  border: 1px solid #484848;
   color: white;
 }

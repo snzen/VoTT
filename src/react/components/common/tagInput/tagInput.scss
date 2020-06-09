@@ -1,12 +1,12 @@
 @import "../../../../index.scss";
 
-$tagInputWidth: 80px;
+// $tagInputWidth: 'min-content';
 
 .tag {
     &-input {
         user-select: none;
         background: $lighter-1;
-        width: $tagInputWidth;
+        width: min-content;
 
         &-text-input-row {
             display: flex;
