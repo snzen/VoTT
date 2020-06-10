@@ -39,6 +39,10 @@ export class StatusBarMetrics extends React.Component<IStatusBarMetricsProps> {
                     <i className="fas fa-eye"></i>
                     <span className="metric-visited-asset-count">{visitedAssets.length}</span>
                 </li>
+                <li title="Filtered assets count">
+                    <i className="fas fa-filter"></i>
+                    <span className="label" id="assetsCountLabel" ></span>
+                </li>
             </ul>
         );
     }

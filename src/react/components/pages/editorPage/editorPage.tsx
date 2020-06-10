@@ -206,6 +206,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         console.log("filtered by name: " + FA.length)
 
+        const countLabel = document.getElementById('assetsCountLabel')
+        if (countLabel) countLabel.textContent = `${FA.length}`
+
         if (!project) {
             return (<div>Loading...</div>);
         }
