@@ -137,22 +137,20 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.activeLearningService = new ActiveLearningService(this.props.project.activeLearningSettings);
         this.filterByTagInput = document.getElementsByName('filterByTag').item(0) as HTMLInputElement
+        const downloadMetaBtn = document.getElementById('downloadMetaBtn');
 
-        if (this.filterByTagInput)
-            this.filterByTagInput.addEventListener("keyup", (ea) => { this.onFilterByTagChanges(this, ea) })
+        if (downloadMetaBtn)
+            downloadMetaBtn.addEventListener("click", () => { this.getMeta(this) })
     }
 
-    private async onFilterByTagChanges(THIS, ea) {
-        console.log(ea.target.value)
-        if (ea.keyCode === 13) {
-            const temp = THIS.filterByTagInput.value
-            THIS.filterByTagInput.value = 'wait...'
-            const assetService = new AssetService(THIS.props.project);
-            const sourceAssets = await assetService.getAssets();
-            const assets = _.values(sourceAssets);
-            THIS.projectAssetsMetadata = await assets.mapAsync((asset) => assetService.getAssetMetadata(asset));
-            THIS.filterByTagInput.value = temp
-        }
+    private async getMeta(THIS) {
+        const temp = THIS.filterByTagInput.value
+        THIS.filterByTagInput.value = 'wait...'
+        const assetService = new AssetService(THIS.props.project);
+        const sourceAssets = await assetService.getAssets();
+        const assets = _.values(sourceAssets);
+        THIS.projectAssetsMetadata = await assets.mapAsync((asset) => assetService.getAssetMetadata(asset));
+        THIS.filterByTagInput.value = temp
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
