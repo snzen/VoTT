@@ -62,7 +62,9 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
                         })}
                     </div>,
                 )}
-                <input type="text" id="filter" name="filter" className="inputBox" placeholder="filter by filename" onKeyUp={this.keyUpHandler} />
+                <input type="text" id="filter" name="filter" className="inputBox w250" placeholder="filter by filename" onKeyUp={this.keyUpHandler} />
+                <input type="text" id="filterByTag" name="filterByTag" className="inputBox w125" placeholder="filter by tag" />
+
             </div>
         );
     }
@@ -76,7 +78,8 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
     }
 
     keyUpHandler(e) {
-        console.log(e.target.value)
+        if (e.keyCode === 13)
+            console.log(e.target.value)
     }
 
 

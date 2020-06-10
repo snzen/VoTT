@@ -123,6 +123,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private canvas: RefObject<Canvas> = React.createRef();
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private projectAssetsMetadata: IAssetMetadata[];
+    private filterByTagInput: HTMLInputElement;
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -134,6 +136,23 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         this.activeLearningService = new ActiveLearningService(this.props.project.activeLearningSettings);
+        this.filterByTagInput = document.getElementsByName('filterByTag').item(0) as HTMLInputElement
+
+        if (this.filterByTagInput)
+            this.filterByTagInput.addEventListener("keyup", (ea) => { this.onFilterByTagChanges(this, ea) })
+    }
+
+    private async onFilterByTagChanges(THIS, ea) {
+        console.log(ea.target.value)
+        if (ea.keyCode === 13) {
+            const temp = THIS.filterByTagInput.value
+            THIS.filterByTagInput.value = 'wait...'
+            const assetService = new AssetService(THIS.props.project);
+            const sourceAssets = await assetService.getAssets();
+            const assets = _.values(sourceAssets);
+            THIS.projectAssetsMetadata = await assets.mapAsync((asset) => assetService.getAssetMetadata(asset));
+            THIS.filterByTagInput.value = temp
+        }
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
@@ -162,15 +181,32 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const { project } = this.props;
         const { assets, selectedAsset } = this.state;
 
-        var filter = document.getElementsByName('filter').item(0) as HTMLInputElement
+        const filter = document.getElementsByName('filter').item(0) as HTMLInputElement
+        const tag = this.filterByTagInput ? this.filterByTagInput.value : ""
+        let filteredAssets = [];
 
-        const rootAssets = assets.filter((asset) => {
+        if (this.projectAssetsMetadata && tag.length > 0) {
+            for (let i = 0; i < this.projectAssetsMetadata.length; i++) {
+                let R = this.projectAssetsMetadata[i].regions
+                for (let j = 0; j < R.length; j++) {
+                    if (R[j].tags.indexOf(tag) > -1) {
+                        filteredAssets.push(this.projectAssetsMetadata[i].asset)
+                        break
+                    }
+                }
+            }
+        }
+        else filteredAssets = assets
+
+        console.log("filtered by tag: " + filteredAssets.length)
+
+        const FA = filteredAssets.filter((asset) => {
             if (asset.parent) return false
-            else if(filter.value.length < 1 ) return true
+            else if (filter.value.length < 1) return true
             else return asset.name.includes(filter.value)
         });
 
-        console.log("assets: " + rootAssets.length)
+        console.log("filtered by name: " + FA.length)
 
         if (!project) {
             return (<div>Loading...</div>);
@@ -205,7 +241,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     onDragFinished={this.onSideBarResizeComplete}>
                     <div className="editor-page-sidebar bg-lighter-1">
                         <EditorSideBar
-                            assets={rootAssets}
+                            assets={FA}
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
                             onBeforeAssetSelected={this.onBeforeAssetSelected}
                             onAssetSelected={this.selectAsset}

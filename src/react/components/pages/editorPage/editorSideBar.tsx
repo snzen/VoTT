@@ -39,20 +39,8 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
     };
 
     private listRef: React.RefObject<List> = React.createRef();
-    private filterBy: string;
 
     public render() {
-        // let len = 0
-        // if (this.filterBy) {
-        //     let scrollTo = -1
-        //     for (let i = 0; i < this.props.assets.length; i++)
-        //         if (this.props.assets[i].name.includes(this.filterBy)){
-        //             if(scrollTo < 0) scrollTo = i
-        //             len++;
-        //         }
-        //     this.state.scrollToIndex = scrollTo
-        // }
-        // else len = this.props.assets.length
         return (
             <div className="editor-page-sidebar-nav" >
                 <AutoSizer>
@@ -118,28 +106,24 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         const asset = this.props.assets[index];
         const selectedAsset = this.props.selectedAsset;
 
-        // var filter = document.getElementsByName('filter').item(0) as HTMLInputElement
-        // this.filterBy = filter.value
-        // if (this.filterBy && asset && !asset.name.includes(filter.value)) return (<div></div>)
-        // else
-            return (
-                <div key={key} style={style}
-                    className={this.getAssetCssClassNames(asset, selectedAsset)}
-                    onClick={() => this.onAssetClicked(asset)}>
-                    <div className="asset-item-image">
-                        {this.renderBadges(asset)}
-                        <AssetPreview asset={asset} />
-                    </div>
-                    <div className="asset-item-metadata">
-                        <span className="asset-filename" title={asset.name}>{asset.name}</span>
-                        {asset.size &&
-                            <span>
-                                {asset.size.width} x {asset.size.height}
-                            </span>
-                        }
-                    </div>
+        return (
+            <div key={key} style={style}
+                className={this.getAssetCssClassNames(asset, selectedAsset)}
+                onClick={() => this.onAssetClicked(asset)}>
+                <div className="asset-item-image">
+                    {this.renderBadges(asset)}
+                    <AssetPreview asset={asset} />
                 </div>
-            );
+                <div className="asset-item-metadata">
+                    <span className="asset-filename" title={asset.name}>{asset.name}</span>
+                    {asset.size &&
+                        <span>
+                            {asset.size.width} x {asset.size.height}
+                        </span>
+                    }
+                </div>
+            </div>
+        );
     }
 
     private renderBadges = (asset: IAsset): JSX.Element => {

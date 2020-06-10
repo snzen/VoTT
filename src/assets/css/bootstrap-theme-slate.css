@@ -9999,8 +9999,16 @@ legend {
 }
 
 .inputBox{
-  width: 250px;
   background-color: #1d1d1d;
   border: 1px solid #484848;
   color: white;
+  margin-left: 5px;
+}
+
+.w250{
+  width: 250px;
+}
+
+.w125{
+  width: 125px;
 }
