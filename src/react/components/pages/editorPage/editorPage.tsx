@@ -183,6 +183,26 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const tag = this.filterByTagInput ? this.filterByTagInput.value : ""
         let filteredAssets = [];
 
+        if (selectedAsset) {
+            let maxTagsPerObject = 0
+            let R = selectedAsset.regions
+            for (let i = 0; i < R.length; i++) {
+                if (R[i].tags.length > maxTagsPerObject)
+                    maxTagsPerObject = R[i].tags.length
+            }
+
+            const maxTagsPerObjectLabel = document.getElementById('maxNumberOfTagsPerObject')
+            const maxNumberOfTagsOnTheFrame = document.getElementById('maxNumberOfTagsOnTheFrame')
+
+            if (maxTagsPerObjectLabel) {
+                maxTagsPerObjectLabel.textContent = `${maxTagsPerObject}`
+                maxTagsPerObjectLabel.parentElement.classList.toggle('important-status-label', maxTagsPerObject > 1);
+            }
+
+            if (maxNumberOfTagsOnTheFrame)
+                maxNumberOfTagsOnTheFrame.textContent = `${selectedAsset.regions.length}`
+        }
+
         if (this.projectAssetsMetadata && tag.length > 0) {
             for (let i = 0; i < this.projectAssetsMetadata.length; i++) {
                 let R = this.projectAssetsMetadata[i].regions

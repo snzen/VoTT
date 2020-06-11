@@ -43,6 +43,14 @@ export class StatusBarMetrics extends React.Component<IStatusBarMetricsProps> {
                     <i className="fas fa-filter"></i>
                     <span className="label" id="assetsCountLabel" ></span>
                 </li>
+                <li title="Number of tags on the current frame">
+                    <i className="fas fa-tags"></i>
+                    <span className="label" id="maxNumberOfTagsOnTheFrame" ></span>
+                </li>
+                <li title="Max tags per object on the current frame">
+                    <i className="fas fa-hashtag"></i>
+                    <span className="label" id="maxNumberOfTagsPerObject" ></span>
+                </li>
             </ul>
         );
     }
