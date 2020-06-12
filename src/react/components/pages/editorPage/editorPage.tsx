@@ -216,15 +216,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
         else filteredAssets = assets
 
-        console.log("filtered by tag: " + filteredAssets.length)
-
         const FA = filteredAssets.filter((asset) => {
             if (asset.parent) return false
             else if (filter.value.length < 1) return true
             else return asset.name.includes(filter.value)
         });
-
-        console.log("filtered by name: " + FA.length)
 
         const countLabel = document.getElementById('assetsCountLabel')
         if (countLabel) countLabel.textContent = `${FA.length}`
