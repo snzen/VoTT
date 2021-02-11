@@ -282,9 +282,9 @@ export default class ImportService implements IImportService {
             metadata.asset.parent = parent;
         }
 
-        if (!metadata.asset.size) {
+        //if (!metadata.asset.size) {
             metadata.asset.size = await HtmlFileReader.readAssetAttributes(asset);
-        }
+        //}
 
         return metadata;
     }
