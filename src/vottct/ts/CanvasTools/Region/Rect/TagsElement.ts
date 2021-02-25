@@ -55,7 +55,7 @@ export class TagsElement extends TagsComponent {
         if (this.tags) {
             window.requestAnimationFrame(() => {
                 if (this.tags.primary !== undefined && this.tags.primary !== null) {
-                    // Update primaty tag rect
+                    // Update primary tag rect
                     this.primaryTagRect.attr({
                         height: this.height,
                         width: this.width,
@@ -66,7 +66,7 @@ export class TagsElement extends TagsComponent {
                     // Update primary tag text
                     if (rebuildTags) {
                         this.primaryTagText.node.innerHTML = (this.tags.primary !== null) ? this.tags.primary.name : "";
-                        this.textBox = this.primaryTagText.getBBox();
+                        this.textBox = TagsComponent.getCachedBBox(this.primaryTagText);
                     }
 
                     const showTextLabel = (this.textBox.width + 10 <= this.width)
@@ -213,11 +213,7 @@ export class TagsElement extends TagsComponent {
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .anchorStyle.ghost`,
-                        style: `fill:transparent;`,
-                    },
-                    {
-                        rule: `.regionStyle.${this.styleId} .anchorStyle.ghost:hover`,
-                        style: `fill:rgba(255,255,255,0.5);`,
+                        style: `fill: var(--default-color-ghost);`,
                     },
                 ];
 
@@ -225,25 +221,26 @@ export class TagsElement extends TagsComponent {
                     {
                         rule: `.${this.styleId} .primaryTagRectStyle`,
                         style: `fill: ${tags.primary.colorNoColor};
-                                stroke:${tags.primary.colorAccent};`,
+                                stroke:${tags.primary.colorAccent};
+                                stroke-width: 1px;`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId}:hover  .primaryTagRectStyle`,
-                        style: `fill: ${tags.primary.colorShadow};
+                        style: `fill: ${tags.primary.colorHighlight};
                                 stroke: #fff;`,
                     },
                     {
                         rule: `.regionStyle.selected.${this.styleId} .primaryTagRectStyle`,
-                        style: `fill: ${tags.primary.colorShadow};
+                        style: `fill: ${tags.primary.colorNoColor};
                                 stroke:${tags.primary.colorAccent};`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .primaryTagTextBGStyle`,
-                        style: `fill:${tags.primary.colorShadow};`,
+                        style: `fill:${tags.primary.colorNoColor};`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .primaryTagTextStyle`,
-                        style: `opacity:0.25;`,
+                        style: `fill:${tags.primary.colorAccent};`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .secondaryTagStyle`,
@@ -252,7 +249,8 @@ export class TagsElement extends TagsComponent {
                     {
                         rule: `.regionStyle.${this.styleId} .anchorStyle`,
                         style: `stroke:${tags.primary.colorDark};
-                                fill: ${tags.primary.colorPure}`,
+                                fill: ${tags.primary.colorPure};
+                                stroke-width: 1px;`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId}:hover .anchorStyle`,
@@ -260,17 +258,33 @@ export class TagsElement extends TagsComponent {
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .anchorStyle.ghost`,
-                        style: `fill:transparent;`,
-                    },
-                    {
-                        rule: `.regionStyle.${this.styleId} .anchorStyle.ghost:hover`,
-                        style: `fill:rgba(255,255,255,0.5);`,
+                        style: `fill: var(--default-color-ghost);`,
                     },
                 ];
             } else {
                 this.styleMap = [];
-                this.styleLightMap = [];
-            }
+                this.styleLightMap = [
+                    {
+                        rule: `.${this.styleId} .primaryTagRectStyle`,
+                        style: `fill: var(--default-color-transparent);
+                                stroke: var(--default-color-pure);
+                                stroke-width: 1px;`,
+                    },
+                    {
+                        rule: `.regionStyle.selected.${this.styleId} .primaryTagRectStyle`,
+                        style: `fill: var(--default-color-transparent);
+                                stroke: var(--default-color-pure);`,
+                    },
+                    {
+                        rule: `.regionStyle.${this.styleId} .anchorStyle`,
+                        style: `stroke-width: 1px;`,
+                    },
+                    {
+                        rule: `.regionStyle.${this.styleId} .anchorStyle.ghost`,
+                        style: `fill: var(--default-color-ghost);`,
+                    },
+                ];
+            } 
 
             if (tags.secondary !== null && tags.secondary !== undefined) {
                 tags.secondary.forEach((tag) => {
@@ -306,7 +320,7 @@ export class TagsElement extends TagsComponent {
 
         this.primaryTagText = paper.text(this.x, this.y, "");
         this.primaryTagText.addClass("primaryTagTextStyle");
-        this.textBox = this.primaryTagText.getBBox();
+        this.textBox = TagsComponent.getCachedBBox(this.primaryTagText);
 
         // bound to region???
         this.primaryTagTextBG = paper.rect(this.x, this.y, 0, 0);
@@ -317,7 +331,7 @@ export class TagsElement extends TagsComponent {
         this.primaryTagNode.add(this.primaryTagText);
 
         this.secondaryTagsNode = paper.g();
-        this.secondaryTagsNode.addClass("secondatyTagsLayer");
+        this.secondaryTagsNode.addClass("secondaryTagsLayer");
         this.secondaryTags = [];
 
         this.node.add(this.primaryTagNode);

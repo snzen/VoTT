@@ -36,6 +36,21 @@ export class TagsElement extends TagsComponent {
     private primaryTagPolygon: Snap.Element;
 
     /**
+     * Reference to the primary tag text-box object (storyng box size).
+     */
+    private textBox: Snap.BBox;
+
+    /**
+     * Reference to the primary tag text background object.
+     */
+    private primaryTagTextBG: Snap.Element;
+
+    /**
+     * Reference to the primary tag text object.
+     */
+    private primaryTagText: Snap.Element;
+
+    /**
      * Creates a new `TagsElement` object.
      * @param paper - The `Snap.Paper` object to draw on.
      * @param paperRect - The parent bounding box for created component.
@@ -53,9 +68,9 @@ export class TagsElement extends TagsComponent {
     }
 
     /**
-     * Redraws the componnent.
+     * Redraws the component.
      */
-    public redraw() {
+    public redraw(rebuildTags: boolean = false) {
         const pointsData = [];
         this.regionData.points.forEach((p) => {
             pointsData.push(p.x, p.y);
@@ -76,6 +91,41 @@ export class TagsElement extends TagsComponent {
             this.primaryTagPolygon.attr({
                 points: pointsData.toString(),
             });
+
+            // Update primary tag text
+            if (rebuildTags) {
+                this.primaryTagText.node.innerHTML = (this.tags.primary !== null) ? this.tags.primary.name : "";
+                this.textBox = TagsComponent.getCachedBBox(this.primaryTagText);
+            }
+
+            const showTextLabel = (this.textBox.width + 10 <= this.width)
+                                           && (this.textBox.height <= this.height);
+
+            if (showTextLabel) {
+                this.primaryTagTextBG.attr({
+                    height: this.textBox.height + 5,
+                    width: this.textBox.width + 10,
+                    x: this.x + 1,
+                    y: this.y + 1,
+                });
+                this.primaryTagText.attr({
+                    visibility: "visible",
+                    x: this.x + 5,
+                    y: this.y + this.textBox.height,
+                });
+            } else {
+                this.primaryTagTextBG.attr({
+                    height: Math.min(10, this.height),
+                    width: Math.min(10, this.width),
+                    x: this.x,
+                    y: this.y,
+                });
+                this.primaryTagText.attr({
+                    visibility: "hidden",
+                    x: this.x + 5,
+                    y: this.y + this.textBox.height,
+                });
+            }
 
             // Secondary Tags
             if (this.secondaryTags && this.secondaryTags.length > 0) {
@@ -107,7 +157,7 @@ export class TagsElement extends TagsComponent {
                     },
                     {
                         rule: `.regionStyle.selected.${this.styleId} .primaryTagBoundRectStyle`,
-                        style: `fill: ${tags.primary.colorHighlight};`,
+                        style: `fill: ${tags.primary.colorHighlight}; opacity: 1;`,
                     },
                     {
                         rule: `.${this.styleId}:hover .primaryTagBoundRectStyle`,
@@ -124,6 +174,10 @@ export class TagsElement extends TagsComponent {
                                 stroke: ${tags.primary.colorPure};`,
                     },
                     {
+                        rule: `.regionStyle.${this.styleId} .primaryTagTextBGStyle`,
+                        style: `fill:${tags.primary.colorAccent};`,
+                    },
+                    {
                         rule: `.regionStyle.selected.${this.styleId} .primaryTagPolygonStyle`,
                         style: `fill: ${tags.primary.colorHighlight};
                                 stroke: ${tags.primary.colorPure};`,
@@ -139,7 +193,7 @@ export class TagsElement extends TagsComponent {
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .anchorStyle.ghost`,
-                        style: `fill:transparent;`,
+                        style: `fill: var(--default-color-ghost);`,
                     },
                 ];
 
@@ -151,24 +205,29 @@ export class TagsElement extends TagsComponent {
                     },
                     {
                         rule: `.${this.styleId} .primaryTagPolygonStyle`,
-                        style: `fill: none;
+                        style: `fill: ${tags.primary.colorNoColor};
                                 stroke: ${tags.primary.colorPure};
                                 stroke-width: 1px;`,
                     },
                     {
-                        rule: `.${this.styleId}:hover .primaryTagPolygonStyle`,
-                        style: `fill: ${tags.primary.colorShadow};
+                        rule: `.regionStyle.${this.styleId}:hover .primaryTagPolygonStyle`,
+                        style: `fill: ${tags.primary.colorHighlight};
                                 stroke: ${tags.primary.colorPure};`,
                     },
                     {
                         rule: `.regionStyle.selected.${this.styleId} .primaryTagPolygonStyle`,
-                        style: `fill: ${tags.primary.colorShadow};
+                        style: `fill: ${tags.primary.colorNoColor};
                                 stroke: ${tags.primary.colorPure};`,
+                    },
+                    {
+                        rule: `.regionStyle.${this.styleId} .primaryTagTextBGStyle`,
+                        style: `fill:${tags.primary.colorNoColor};`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .anchorStyle`,
                         style: `stroke:${tags.primary.colorDark};
-                                fill: ${tags.primary.colorPure}`,
+                                fill: ${tags.primary.colorPure};
+                                stroke-width: 1px;`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId}:hover .anchorStyle`,
@@ -176,7 +235,7 @@ export class TagsElement extends TagsComponent {
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .anchorStyle.ghost`,
-                        style: `fill:transparent;`,
+                        style: `fill: var(--default-color-ghost);`,
                     },
                     {
                         rule: `.regionStyle.${this.styleId} .secondaryTagStyle`,
@@ -185,7 +244,32 @@ export class TagsElement extends TagsComponent {
                 ];
             } else {
                 this.styleMap = [];
-                this.styleLightMap = [];
+                this.styleLightMap = [
+                    {
+                        rule: `.${this.styleId} .primaryTagPolygonStyle`,
+                        style: `fill: var(--default-color-transparent);`,
+                    },
+                    {
+                        rule: `.regionStyle.selected.${this.styleId} .primaryTagPolygonStyle`,
+                        style: `fill: var(--default-color-transparent);`,
+                    },
+                    {
+                        rule: `.${this.styleId} .primaryTagBoundRectStyle`,
+                        style: `fill: none;`,
+                    },
+                    {
+                        rule: `.${this.styleId} .primaryTagPolylineStyle`,
+                        style: `stroke-width: 1px;`,
+                    },
+                    {
+                        rule: `.regionStyle.${this.styleId} .anchorStyle`,
+                        style: `stroke-width: 1px;`,
+                    },
+                    {
+                        rule: `.regionStyle.${this.styleId} .anchorStyle.ghost`,
+                        style: `fill: var(--default-color-ghost);`,
+                    },
+                ];
             }
 
             if (tags.secondary !== null && tags.secondary !== undefined) {
@@ -215,7 +299,7 @@ export class TagsElement extends TagsComponent {
         if (this.tags) {
             if (this.tags.primary !== undefined && this.tags.primary !== null) {
                 // Primary Tag
-
+                this.redraw(true);
             }
             // Secondary Tags
             if (this.tags.secondary && this.tags.secondary.length > 0) {
@@ -251,12 +335,20 @@ export class TagsElement extends TagsComponent {
         this.primaryTagBoundRect = paper.rect(this.x, this.y, this.boundRect.width, this.boundRect.height);
         this.primaryTagBoundRect.addClass("primaryTagBoundRectStyle");
 
+        this.primaryTagText = paper.text(this.x, this.y, "");
+        this.primaryTagText.addClass("primaryTagTextStyle");
+        this.textBox = TagsComponent.getCachedBBox(this.primaryTagText);
+
         const pointsData = [];
         this.regionData.points.forEach((p) => {
             pointsData.push(p.x, p.y);
         });
+
         this.primaryTagPolygon = paper.polygon(pointsData);
         this.primaryTagPolygon.addClass("primaryTagPolygonStyle");
+
+        this.primaryTagTextBG = paper.rect(this.x, this.y, 0, 0);
+        this.primaryTagTextBG.addClass("primaryTagTextBGStyle");
 
         this.regionData.points.forEach((p) => {
             pointsData.push(p.x, p.y);
@@ -264,9 +356,11 @@ export class TagsElement extends TagsComponent {
 
         this.primaryTagNode.add(this.primaryTagBoundRect);
         this.primaryTagNode.add(this.primaryTagPolygon);
+        this.primaryTagNode.add(this.primaryTagTextBG);
+        this.primaryTagNode.add(this.primaryTagText);
 
         this.secondaryTagsNode = paper.g();
-        this.secondaryTagsNode.addClass("secondatyTagsLayer");
+        this.secondaryTagsNode.addClass("secondaryTagsLayer");
         this.secondaryTags = [];
 
         this.node.add(this.primaryTagNode);
