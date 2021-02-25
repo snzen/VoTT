@@ -9,13 +9,13 @@ import CanvasHelpers from "./canvasHelpers";
 import { appInfo } from "../../../../common/appInfo";
 
 jest.mock("../CanvasTools/CanvasTools.Editor");
-import { Editor } from "../../../../CanvasTools/CanvasTools.Editor";
+import { Editor } from "../../../../vottct/ts/CanvasTools/CanvasTools.Editor";
 
 jest.mock("../CanvasTools/Region/RegionsManager");
-import { RegionsManager } from "../../../../CanvasTools/Region/RegionsManager";
+import { RegionsManager } from "../../../../vottct/ts/CanvasTools/Region/RegionsManager";
 import Confirm, { IConfirmProps } from "../../common/confirm/confirm";
-import { Rect } from "../../../../CanvasTools/Core/Rect";
-import { SelectionMode } from "../../../../CanvasTools/Interface/ISelectorSettings";
+import { Rect } from "../../../../vottct/ts/CanvasTools/Core/Rect";
+import { SelectionMode } from "../../../../vottct/ts/CanvasTools/Interface/ISelectorSettings";
 
 describe("Editor Canvas", () => {
     function createComponent(canvasProps?: ICanvasProps, assetPreviewProps?: IAssetPreviewProps)

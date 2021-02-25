@@ -4,8 +4,8 @@ import { LocalFileSystemProxy, ILocalFileSystemProxyOptions } from "../../provid
 export class ElectronProxyHandler implements tfc.io.IOHandler {
     protected readonly provider: LocalFileSystemProxy;
 
-    constructor(folderPath: string, relativePath: boolean) {
-        const options: ILocalFileSystemProxyOptions = { folderPath, relativePath };
+    constructor(folderPath: string) {
+        const options: ILocalFileSystemProxyOptions = { folderPath };
         this.provider = new LocalFileSystemProxy(options);
     }
 

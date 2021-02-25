@@ -25,11 +25,11 @@ import IApplicationActions, * as applicationActions from "../redux/actions/appli
 import { ILocalFileSystemProxyOptions } from "../providers/storage/localFileSystemProxy";
 import { generateKey } from "./crypto";
 import { AssetService } from "../services/assetService";
-import { Point2D } from "../CanvasTools/Core/Point2D";
-import { RegionDataType, RegionData } from "../CanvasTools/Core/RegionData";
+import { Point2D } from "../vottct/ts/CanvasTools/Core/Point2D";
+import { RegionDataType, RegionData } from "../vottct/ts/CanvasTools/Core/RegionData";
 import { randomIntInRange, encodeFileURI } from "./utils";
 import { appInfo } from "./appInfo";
-import { SelectionMode } from "../CanvasTools/Interface/ISelectorSettings";
+import { SelectionMode } from "../vottct/ts/CanvasTools/Interface/ISelectorSettings";
 import { IKeyboardBindingProps } from "../react/components/common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../react/components/common/keyboardManager/keyboardManager";
 import { IKeyboardRegistrations } from "../react/components/common/keyboardManager/keyboardRegistrationManager";
@@ -277,7 +277,6 @@ export default class MockFactory {
             id: `project-${name}`,
             name: `Project ${name}`,
             version: appInfo.version,
-            useSecurityToken: true,
             securityToken: `Security-Token-${name}`,
             assets: {},
             exportFormat: MockFactory.exportFormat(),
@@ -397,8 +396,7 @@ export default class MockFactory {
 
     public static createLocalFileSystemOptions(): ILocalFileSystemProxyOptions {
         return {
-            folderPath: "C:\\projects\\vott\\project",
-            relativePath: false,
+            folderPath: "C:\\projects\\vott\\project"
         };
     }
 

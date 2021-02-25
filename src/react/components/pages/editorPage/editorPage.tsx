@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
-import { SelectionMode } from "../../../../CanvasTools/Interface/ISelectorSettings";
+import { SelectionMode } from "../../../../vottct/ts/CanvasTools/Interface/ISelectorSettings";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings } from "../../../../common/strings";
 import {
@@ -123,6 +123,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private canvas: RefObject<Canvas> = React.createRef();
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private deleteTagConfirm: React.RefObject<Confirm> = React.createRef();
+    private projectAssetsMetadata: IAssetMetadata[];
+    private filterByTagInput: HTMLInputElement;
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
@@ -134,6 +136,21 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         this.activeLearningService = new ActiveLearningService(this.props.project.activeLearningSettings);
+        this.filterByTagInput = document.getElementsByName('filterByTag').item(0) as HTMLInputElement
+        const downloadMetaBtn = document.getElementById('downloadMetaBtn');
+
+        if (downloadMetaBtn)
+            downloadMetaBtn.addEventListener("click", () => { this.getMeta(this) })
+    }
+
+    private async getMeta(THIS) {
+        const temp = THIS.filterByTagInput.value
+        THIS.filterByTagInput.value = 'wait...'
+        const assetService = new AssetService(THIS.props.project);
+        const sourceAssets = await assetService.getAssets();
+        const assets = _.values(sourceAssets);
+        THIS.projectAssetsMetadata = await assets.mapAsync((asset) => assetService.getAssetMetadata(asset));
+        THIS.filterByTagInput.value = temp
     }
 
     public async componentDidUpdate(prevProps: Readonly<IEditorPageProps>) {
@@ -161,7 +178,52 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     public render() {
         const { project } = this.props;
         const { assets, selectedAsset } = this.state;
-        const rootAssets = assets.filter((asset) => !asset.parent);
+
+        const filter = document.getElementsByName('filter').item(0) as HTMLInputElement
+        const tag = this.filterByTagInput ? this.filterByTagInput.value : ""
+        let filteredAssets = [];
+
+        if (selectedAsset) {
+            let maxTagsPerObject = 0
+            let R = selectedAsset.regions
+            for (let i = 0; i < R.length; i++) {
+                if (R[i].tags.length > maxTagsPerObject)
+                    maxTagsPerObject = R[i].tags.length
+            }
+
+            const maxTagsPerObjectLabel = document.getElementById('maxNumberOfTagsPerObject')
+            const maxNumberOfTagsOnTheFrame = document.getElementById('maxNumberOfTagsOnTheFrame')
+
+            if (maxTagsPerObjectLabel) {
+                maxTagsPerObjectLabel.textContent = `${maxTagsPerObject}`
+                maxTagsPerObjectLabel.parentElement.classList.toggle('important-status-label', maxTagsPerObject > 1);
+            }
+
+            if (maxNumberOfTagsOnTheFrame)
+                maxNumberOfTagsOnTheFrame.textContent = `${selectedAsset.regions.length}`
+        }
+
+        if (this.projectAssetsMetadata && tag.length > 0) {
+            for (let i = 0; i < this.projectAssetsMetadata.length; i++) {
+                let R = this.projectAssetsMetadata[i].regions
+                for (let j = 0; j < R.length; j++) {
+                    if (R[j].tags.indexOf(tag) > -1) {
+                        filteredAssets.push(this.projectAssetsMetadata[i].asset)
+                        break
+                    }
+                }
+            }
+        }
+        else filteredAssets = assets
+
+        const FA = filteredAssets.filter((asset) => {
+            if (asset.parent) return false
+            else if (filter.value.length < 1) return true
+            else return asset.name.includes(filter.value)
+        });
+
+        const countLabel = document.getElementById('assetsCountLabel')
+        if (countLabel) countLabel.textContent = `${FA.length}`
 
         if (!project) {
             return (<div>Loading...</div>);
@@ -196,7 +258,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     onDragFinished={this.onSideBarResizeComplete}>
                     <div className="editor-page-sidebar bg-lighter-1">
                         <EditorSideBar
-                            assets={rootAssets}
+                            assets={FA}
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
                             onBeforeAssetSelected={this.onBeforeAssetSelected}
                             onAssetSelected={this.selectAsset}
@@ -634,10 +696,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
 
         try {
-            if (!assetMetadata.asset.size) {
+            //if (!assetMetadata.asset.size) {
                 const assetProps = await HtmlFileReader.readAssetAttributes(asset);
                 assetMetadata.asset.size = { width: assetProps.width, height: assetProps.height };
-            }
+            //}
         } catch (err) {
             console.warn("Error computing asset size");
         }

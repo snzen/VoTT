@@ -1,18 +1,20 @@
 import React, { Fragment, ReactElement } from "react";
+
+import { CanvasTools } from "../../../../vottct/ts/ct";
 import * as shortid from "shortid";
-import { RegionData } from "../../../../CanvasTools/Core/RegionData";
+import { RegionData } from "../../../../vottct/ts/CanvasTools/Core/RegionData";
 import {
     EditorMode, IAssetMetadata,
     IProject, IRegion, RegionType,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
 import { AssetPreview, ContentSource } from "../../common/assetPreview/assetPreview";
-import { Editor } from "../../../../CanvasTools/CanvasTools.Editor";
+import { Editor } from "../../../../vottct/ts/CanvasTools/CanvasTools.Editor";
 import Clipboard from "../../../../common/clipboard";
 import Confirm from "../../common/confirm/confirm";
 import { strings } from "../../../../common/strings";
-import { SelectionMode } from "../../../../CanvasTools/Interface/ISelectorSettings";
-import { Rect } from "../../../../CanvasTools/Core/Rect";
+import { SelectionMode } from "../../../../vottct/ts/CanvasTools/Interface/ISelectorSettings";
+import { Rect } from "../../../../vottct/ts/CanvasTools/Core/Rect";
 import { createContentBoundingBox } from "../../../../common/layout";
 
 export interface ICanvasProps extends React.Props<Canvas> {
@@ -57,7 +59,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     public componentDidMount = () => {
         const sz = document.getElementById("editor-zone") as HTMLDivElement;
-        this.editor = new Editor(sz);
+        this.editor = new CanvasTools.Editor(sz);
         this.editor.autoResize = false;
         this.editor.onSelectionEnd = this.onSelectionEnd;
         this.editor.onRegionMoveEnd = this.onRegionMoveEnd;

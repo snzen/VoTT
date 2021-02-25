@@ -23,15 +23,13 @@ export class AssetService {
 
     /**
      * Create IAsset from filePath
-     * @param assetFilePath - filepath of asset
-     * @param assetFileName - name of asset
+     * @param filePath - filepath of asset
+     * @param fileName - name of asset
      */
-    public static createAssetFromFilePath(
-            assetFilePath: string,
-            assetFileName?: string,
-            assetIdentifier?: string): IAsset {
-        Guard.empty(assetFilePath);
-        const normalizedPath = assetFilePath.toLowerCase();
+    public static createAssetFromFilePath(filePath: string, fileName?: string): IAsset {
+        Guard.empty(filePath);
+
+        const normalizedPath = filePath.toLowerCase();
 
         // If the path is not already prefixed with a protocol
         // then assume it comes from the local file system
@@ -39,18 +37,17 @@ export class AssetService {
             !normalizedPath.startsWith("https://") &&
             !normalizedPath.startsWith("file:")) {
             // First replace \ character with / the do the standard url encoding then encode unsupported characters
-            assetFilePath = encodeFileURI(assetFilePath, true);
+            filePath = encodeFileURI(filePath, true);
         }
-        assetIdentifier = assetIdentifier || assetFilePath;
 
-        const md5Hash = new MD5().update(assetIdentifier).digest("hex");
-        const pathParts = assetFilePath.split(/[\\\/]/);
+        const md5Hash = new MD5().update(filePath).digest("hex");
+        const pathParts = filePath.split(/[\\\/]/);
         // Example filename: video.mp4#t=5
         // fileNameParts[0] = "video"
         // fileNameParts[1] = "mp4"
         // fileNameParts[2] = "t=5"
-        assetFileName = assetFileName || pathParts[pathParts.length - 1];
-        const fileNameParts = assetFileName.split(".");
+        fileName = fileName || pathParts[pathParts.length - 1];
+        const fileNameParts = fileName.split(".");
         const extensionParts = fileNameParts[fileNameParts.length - 1].split(/[\?#]/);
         const assetFormat = extensionParts[0];
 
@@ -61,8 +58,8 @@ export class AssetService {
             format: assetFormat,
             state: AssetState.NotVisited,
             type: assetType,
-            name: assetFileName,
-            path: assetFilePath,
+            name: fileName,
+            path: filePath,
             size: null,
         };
     }

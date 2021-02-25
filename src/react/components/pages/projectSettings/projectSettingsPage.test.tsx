@@ -60,7 +60,6 @@ describe("Project settings page", () => {
         const store = createReduxStore(MockFactory.initialState());
         const props = MockFactory.projectSettingsProps();
         const saveProjectSpy = jest.spyOn(props.projectActions, "saveProject");
-        const ensureSecurityTokenSpy = jest.spyOn(props.applicationActions, "ensureSecurityToken");
 
         projectServiceMock.prototype.save = jest.fn((project) => Promise.resolve(project));
 
@@ -69,7 +68,6 @@ describe("Project settings page", () => {
         await MockFactory.flushUi();
 
         expect(saveProjectSpy).toBeCalled();
-        expect(ensureSecurityTokenSpy).toBeCalled();
     });
 
     it("Throws an error when a user tries to create a duplicate project", async () => {
@@ -116,7 +114,6 @@ describe("Project settings page", () => {
         const store = createReduxStore(initialState);
         const props = MockFactory.projectSettingsProps();
         const saveProjectSpy = jest.spyOn(props.projectActions, "saveProject");
-        const ensureSecurityTokenSpy = jest.spyOn(props.applicationActions, "ensureSecurityToken");
         const saveAppSettingsSpy = jest.spyOn(props.applicationActions, "saveAppSettings");
 
         projectServiceMock.prototype.save = jest.fn((project) => Promise.resolve(project));
@@ -132,11 +129,6 @@ describe("Project settings page", () => {
 
         // New project was saved with new security token
         expect(saveProjectSpy).toBeCalledWith({
-            ...project,
-            securityToken: `${project.name} Token`,
-        });
-
-        expect(ensureSecurityTokenSpy).toBeCalledWith({
             ...project,
             securityToken: `${project.name} Token`,
         });

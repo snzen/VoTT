@@ -11,7 +11,6 @@ import ConnectionForm from "./connectionForm";
 import ConnectionItem from "./connectionItem";
 import "./connectionsPage.scss";
 import { toast } from "react-toastify";
-import { AssetProviderFactory } from "../../../../providers/storage/assetProviderFactory";
 
 /**
  * Properties for Connection Page
@@ -135,18 +134,10 @@ export default class ConnectionPage extends React.Component<IConnectionPageProps
     }
 
     private onFormSubmit = async (connection: IConnection) => {
-        connection = this.addDefaultPropsIfNewConnection(connection);
         await this.props.actions.saveConnection(connection);
         toast.success(interpolate(strings.connections.messages.saveSuccess, { connection }));
 
         this.props.history.goBack();
-    }
-
-    private addDefaultPropsIfNewConnection(connection: IConnection): IConnection {
-        const assetProvider = AssetProviderFactory.createFromConnection(connection);
-        return !connection.id && assetProvider.addDefaultPropsToNewConnection
-            ? assetProvider.addDefaultPropsToNewConnection(connection)
-            : connection;
     }
 
     private onFormCancel() {

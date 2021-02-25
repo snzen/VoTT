@@ -1,8 +1,8 @@
 import shortid from "shortid";
-import { Point2D } from "../../../../CanvasTools/Core/Point2D";
-import { RegionData, RegionDataType } from "../../../../CanvasTools/Core/RegionData";
-import { Tag } from "../../../../CanvasTools/Core/Tag";
-import { TagsDescriptor } from "../../../../CanvasTools/Core/TagsDescriptor";
+import { Point2D } from "../../../../vottct/ts/CanvasTools/Core/Point2D";
+import { RegionData, RegionDataType } from "../../../../vottct/ts/CanvasTools/Core/RegionData";
+import { Tag } from "../../../../vottct/ts/CanvasTools/Core/Tag";
+import { TagsDescriptor } from "../../../../vottct/ts/CanvasTools/Core/TagsDescriptor";
 import Guard from "../../../../common/guard";
 import { IBoundingBox, IRegion, ITag, RegionType,
     IPoint, AppError, ErrorCode } from "../../../../models/applicationState";

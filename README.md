@@ -1,3 +1,20 @@
+# Features in this fork
+
++ Filter assets by part of a filename
++ Filter assets by tag
++ More visible rulers
++ Bigger vertical scroll bar handle
++ Min-sized tag panel
++ Dark tag bg color in order to spot multi-tags
++ Max number of tags per object status indicator
+
+That's it, the rest is the same.
+
+![](docs/images/RhythmVoTT.png "f")
+![](docs/images/MaxTagsCount.png "f")
+
+
+
 # VoTT (Visual Object Tagging Tool)
 
 [![Build Status](https://dev.azure.com/msft-vott/VoTT/_apis/build/status/VoTT/Microsoft.VoTT?branchName=master)](https://dev.azure.com/msft-vott/VoTT/_build/latest?definitionId=25&branchName=master)
@@ -7,7 +24,6 @@
 [Complexity Analysis Report](https://vottv2.z5.web.core.windows.net/)
 
 ----------
-
 An open source annotation and labeling tool for image and video assets.
 
 VoTT is a React + Redux Web application, written in [TypeScript](https://github.com/Microsoft/TypeScript). This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -268,17 +284,6 @@ When the video playback bar is present, it allows the following shortcuts to sel
 * Multi-select - Hold down Shift while selecting regions
 * Exclusive Tracking mode - Ctrl + N to block frame UI allowing a user to create a region on top of existing regions
 
-## Release Process
-
-![alt text](./docs/images/release-process.png "Create Release Process")
-
-For more details on github/web releases and versions -- please review our [release process document](./docs/RELEASE_GUIDE.md)
-
-To build VoTT executable using command:
-```
-npm run release
-```
-For details on packaging executable for the release -- please review our [PACKAGING.md](./docs/PACKAGING.md)
 
 ## Collaborators
 

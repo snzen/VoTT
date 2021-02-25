@@ -62,6 +62,9 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
                         })}
                     </div>,
                 )}
+                <button type="button" id="downloadMetaBtn" className="toolbar-btn saveProject" title="Refresh tags"><i className="fas fa-sync"></i></button>
+                <input type="text" id="filter" name="filter" className="inputBox w250" placeholder="filter by filename" onKeyUp={this.keyUpHandler} />
+                <input type="text" id="filterByTag" name="filterByTag" className="inputBox w125" placeholder="filter by tag" />
             </div>
         );
     }
@@ -73,6 +76,12 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
             this.props.onToolbarItemSelected(toolbarItem);
         });
     }
+
+    keyUpHandler(e) {
+        if (e.keyCode === 13)
+            console.log(e.target.value)
+    }
+
 
     private isComponentActive(selected: ToolbarItemName, componentRegistration: IToolbarItemRegistration) {
         return selected

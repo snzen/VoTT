@@ -107,8 +107,7 @@ export interface IProject {
     id: string;
     name: string;
     version: string;
-    useSecurityToken: boolean;
-    securityToken?: string;
+    securityToken: string;
     description?: string;
     tags: ITag[];
     sourceConnection: IConnection;

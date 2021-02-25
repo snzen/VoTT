@@ -16,7 +16,7 @@ function createWindow() {
         height: 768,
         frame: process.platform === "linux",
         titleBarStyle: "hidden",
-        backgroundColor: "#272B30",
+        backgroundColor: "#232221",
         show: false,
     };
 

@@ -20,10 +20,10 @@ jest.mock("../../../../services/projectService");
 import ProjectService from "../../../../services/projectService";
 
 jest.mock("vott-ct/lib/js/CanvasTools/CanvasTools.Editor");
-import { Editor } from "../../../../CanvasTools/CanvasTools.Editor";
+import { Editor } from "../../../../vottct/ts/CanvasTools/CanvasTools.Editor";
 
 jest.mock("vott-ct/lib/js/CanvasTools/Region/RegionsManager");
-import { RegionsManager } from "../../../../CanvasTools/Region/RegionsManager";
+import { RegionsManager } from "../../../../vottct/ts/CanvasTools/Region/RegionsManager";
 import Canvas from "./canvas";
 import { appInfo } from "../../../../common/appInfo";
 import SplitPane from "react-split-pane";

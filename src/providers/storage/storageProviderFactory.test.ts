@@ -51,7 +51,7 @@ class TestStorageProvider implements IStorageProvider {
     public deleteContainer(folderPath: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    public getAssets(): Promise<IAsset[]> {
+    public getAssets(containerName?: string): Promise<IAsset[]> {
         throw new Error("Method not implemented.");
     }
 }

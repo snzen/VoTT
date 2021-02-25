@@ -19,8 +19,8 @@ import { IExportFormat } from "vott-react";
  * @member delete - Delete a project
  */
 export interface IProjectService {
-    load(project: IProject, securityToken?: ISecurityToken): Promise<IProject>;
-    save(project: IProject, securityToken?: ISecurityToken): Promise<IProject>;
+    load(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
+    save(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
 }
@@ -49,13 +49,11 @@ export default class ProjectService implements IProjectService {
      * @param project The project JSON to load
      * @param securityToken The security token used to decrypt sensitive project settings
      */
-    public load(project: IProject, securityToken?: ISecurityToken): Promise<IProject> {
+    public load(project: IProject, securityToken: ISecurityToken): Promise<IProject> {
         Guard.null(project);
 
         try {
-            const loadedProject = project.useSecurityToken
-                ? decryptProject(project, securityToken)
-                : { ...project };
+            const loadedProject = decryptProject(project, securityToken);
 
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
@@ -86,7 +84,7 @@ export default class ProjectService implements IProjectService {
      * @param project - Project to save
      * @param securityToken - Security Token to encrypt
      */
-    public async save(project: IProject, securityToken?: ISecurityToken): Promise<IProject> {
+    public async save(project: IProject, securityToken: ISecurityToken): Promise<IProject> {
         Guard.null(project);
 
         if (!project.id) {
@@ -112,9 +110,7 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.targetConnection);
         await this.saveExportSettings(project);
-        project = project.useSecurityToken
-            ? encryptProject(project, securityToken)
-            : { ...project };
+        project = encryptProject(project, securityToken);
 
         await storageProvider.writeText(
             `${project.name}${constants.projectFileExtension}`,
