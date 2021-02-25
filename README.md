@@ -7,6 +7,9 @@
 + Min-sized tag panel
 + Dark tag bg color in order to spot multi-tags
 + Max number of tags per object status indicator
++ getBBox optimized
++ vott-ct is included in the src as code
++ Tag names toggle
 
 That's it, the rest is the same.
 
