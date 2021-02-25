@@ -62,6 +62,8 @@ export class EditorToolbar extends React.Component<IEditorToolbarProps, IEditorT
                         })}
                     </div>,
                 )}
+
+                <button type="button" id="toggleTagsBtn" className="toolbar-btn" title="Toggle labels"><i id="lblTagsOn" className="fas fa-font"></i></button>
                 <button type="button" id="downloadMetaBtn" className="toolbar-btn saveProject" title="Refresh tags"><i className="fas fa-sync"></i></button>
                 <input type="text" id="filter" name="filter" className="inputBox w250" placeholder="filter by filename" onKeyUp={this.keyUpHandler} />
                 <input type="text" id="filterByTag" name="filterByTag" className="inputBox w125" placeholder="filter by tag" />

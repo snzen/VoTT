@@ -138,9 +138,45 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.activeLearningService = new ActiveLearningService(this.props.project.activeLearningSettings);
         this.filterByTagInput = document.getElementsByName('filterByTag').item(0) as HTMLInputElement
         const downloadMetaBtn = document.getElementById('downloadMetaBtn');
+        const toggleLabelsBtn = document.getElementById('toggleTagsBtn');
+
+        const KEY = "hide-tag-labels"
+        let isOff = localStorage.getItem(KEY) === "1"
+
+        document.getElementById("lblTagsOn").classList.toggle("fa-font", !isOff)
+        document.getElementById("lblTagsOn").classList.toggle("fa-strikethrough", isOff)
 
         if (downloadMetaBtn)
             downloadMetaBtn.addEventListener("click", () => { this.getMeta(this) })
+
+        if (toggleLabelsBtn)
+            toggleLabelsBtn.addEventListener("click", () => {
+                let htl = localStorage.getItem(KEY)
+                if (htl === undefined) {
+                    htl = "1"
+                    localStorage.setItem(KEY, htl)
+                }
+                else {
+                    htl = htl === "1" ? "0" : "1"
+                    localStorage.setItem(KEY, htl)
+                }
+
+                const rootel = document.getElementById("editor-zone")
+                if (rootel) {
+                    const BGs = rootel.querySelectorAll<HTMLElement>(".primaryTagTextBGStyle")
+                    const LBs = rootel.querySelectorAll<HTMLElement>(".primaryTagTextStyle")
+                    const isOff = htl === "1"
+
+                    for (let i = 0; i < BGs.length; i++)
+                        if (BGs[i]) BGs[i].classList.toggle("hidden", isOff)
+
+                    for (let i = 0; i < LBs.length; i++)
+                        if (LBs[i]) LBs[i].classList.toggle("hidden", isOff)
+
+                    document.getElementById("lblTagsOn").classList.toggle("fa-font", !isOff)
+                    document.getElementById("lblTagsOn").classList.toggle("fa-strikethrough", isOff)
+                }
+            })
     }
 
     private async getMeta(THIS) {
@@ -697,8 +733,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         try {
             //if (!assetMetadata.asset.size) {
-                const assetProps = await HtmlFileReader.readAssetAttributes(asset);
-                assetMetadata.asset.size = { width: assetProps.width, height: assetProps.height };
+            const assetProps = await HtmlFileReader.readAssetAttributes(asset);
+            assetMetadata.asset.size = { width: assetProps.width, height: assetProps.height };
             //}
         } catch (err) {
             console.warn("Error computing asset size");

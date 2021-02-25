@@ -18,6 +18,7 @@ export abstract class TagsComponent extends RegionComponent {
      */
     public static getCachedBBox(primaryTagNode: Snap.Element): Snap.BBox {
         const tagName = primaryTagNode.node.innerHTML;
+        
         if (TagsComponent.bboxCache[tagName]) {
             return TagsComponent.bboxCache[tagName];
         }

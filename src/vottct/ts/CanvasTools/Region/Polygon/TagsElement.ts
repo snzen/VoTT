@@ -61,7 +61,7 @@ export class TagsElement extends TagsComponent {
      * @param tagsUpdateOptions - The settings for redrawing tags.
      */
     constructor(paper: Snap.Paper, paperRect: Rect, regionData: RegionData, tags: TagsDescriptor,
-                styleId: string, styleSheet: CSSStyleSheet, tagsUpdateOptions?: ITagsUpdateOptions) {
+        styleId: string, styleSheet: CSSStyleSheet, tagsUpdateOptions?: ITagsUpdateOptions) {
         super(paper, paperRect, regionData, tags, styleId, styleSheet, tagsUpdateOptions);
 
         this.buildOn(paper, tags);
@@ -99,22 +99,26 @@ export class TagsElement extends TagsComponent {
             }
 
             const showTextLabel = (this.textBox.width + 10 <= this.width)
-                                           && (this.textBox.height <= this.height);
+                && (this.textBox.height <= this.height);
+
+            const showLabels = localStorage.getItem("hide-tag-labels") == "1" ? "hidden" : "visible"
 
             if (showTextLabel) {
                 this.primaryTagTextBG.attr({
+                    visibility: showLabels,
                     height: this.textBox.height + 5,
                     width: this.textBox.width + 10,
                     x: this.x + 1,
                     y: this.y + 1,
                 });
                 this.primaryTagText.attr({
-                    visibility: "visible",
+                    visibility: showLabels,
                     x: this.x + 5,
                     y: this.y + this.textBox.height,
                 });
             } else {
                 this.primaryTagTextBG.attr({
+                    visibility: showLabels,
                     height: Math.min(10, this.height),
                     width: Math.min(10, this.width),
                     x: this.x,

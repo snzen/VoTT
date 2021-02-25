@@ -41,7 +41,7 @@ export class TagsElement extends TagsComponent {
      * @param tagsUpdateOptions - The settings for redrawing tags.
      */
     constructor(paper: Snap.Paper, paperRect: Rect, regionData: RegionData, tags: TagsDescriptor, styleId: string,
-                styleSheet: CSSStyleSheet, tagsUpdateOptions?: ITagsUpdateOptions) {
+        styleSheet: CSSStyleSheet, tagsUpdateOptions?: ITagsUpdateOptions) {
         super(paper, paperRect, regionData, tags, styleId, styleSheet, tagsUpdateOptions);
 
         this.buildOn(paper, tags);
@@ -68,24 +68,27 @@ export class TagsElement extends TagsComponent {
                         this.primaryTagText.node.innerHTML = (this.tags.primary !== null) ? this.tags.primary.name : "";
                         this.textBox = TagsComponent.getCachedBBox(this.primaryTagText);
                     }
+                    const lblVisibility = localStorage.getItem("hide-tag-labels") == "1" ? "hidden" : "visible"
 
                     const showTextLabel = (this.textBox.width + 10 <= this.width)
-                                           && (this.textBox.height <= this.height);
+                        && (this.textBox.height <= this.height);
 
                     if (showTextLabel) {
                         this.primaryTagTextBG.attr({
+                            visibility: lblVisibility,
                             height: this.textBox.height + 5,
                             width: this.textBox.width + 10,
                             x: this.x + 1,
                             y: this.y + 1,
                         });
                         this.primaryTagText.attr({
-                            visibility: "visible",
+                            visibility: lblVisibility,
                             x: this.x + 5,
                             y: this.y + this.textBox.height,
                         });
                     } else {
                         this.primaryTagTextBG.attr({
+                            visibility: lblVisibility,
                             height: Math.min(10, this.height),
                             width: Math.min(10, this.width),
                             x: this.x,
@@ -284,7 +287,7 @@ export class TagsElement extends TagsComponent {
                         style: `fill: var(--default-color-ghost);`,
                     },
                 ];
-            } 
+            }
 
             if (tags.secondary !== null && tags.secondary !== undefined) {
                 tags.secondary.forEach((tag) => {
