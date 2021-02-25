@@ -1,0 +1,274 @@
+import { Rect } from "../../Core/Rect";
+import { RegionData } from "../../Core/RegionData";
+
+import { IEventDescriptor } from "../../Interface/IEventDescriptor";
+import { IFreezable } from "../../Interface/IFreezable";
+import { IHideable } from "../../Interface/IHideadble";
+import { IMovable } from "../../Interface/IMovable";
+import { IResizable } from "../../Interface/IResizable";
+import { IRegionCallbacks, ChangeEventType } from "../../Interface/IRegionCallbacks";
+import { IPoint2D } from "../../Interface/IPoint2D";
+
+/**
+ * An abstract visial component to define a component of region presentation UI.
+ */
+export abstract class RegionComponent implements IHideable, IResizable, IMovable, IFreezable {
+    /**
+     * The `Snap.Element` object of the component to be used in DOM tree composition.
+     */
+    public node: Snap.Element;
+    /**
+     * The `RegionData` object describing current region state.
+     */
+    public regionData: RegionData;
+
+    /**
+     * Defines if the component is visible.
+     */
+    public isVisible: boolean = true;
+
+    /**
+     * Defines if the component is in a frozen state.
+     */
+    public isFrozen: boolean = false;
+
+    /**
+     * Defines if the component is selected.
+     */
+    public isSelected: boolean = false;
+
+    /**
+     * Reference to the `Snap.Paper` object to draw on.
+     */
+    protected paper: Snap.Paper;
+
+    /**
+     * Reference to the size of parent host.
+     */
+    protected paperRect: Rect;
+
+    /**
+     * The `x`-coordinate of the component. Defined through the `regionaData`.
+     */
+    public get x(): number {
+        return this.regionData.x;
+    }
+
+    /**
+     * The `y`-coordinate of the component. Defined through the `regionaData`.
+     */
+    public get y(): number {
+        return this.regionData.y;
+    }
+
+    /**
+     * The `width` of the component. Defined through the `regionaData`.
+     */
+    public get width(): number {
+        return this.regionData.boundRect.width;
+    }
+
+    /**
+     * The `height` of the component. Defined through the `regionaData`.
+     */
+    public get height(): number {
+        return this.regionData.boundRect.height;
+    }
+
+    /**
+     * The `area` of the component. Defined through the `regionaData`.
+     */
+    public get area(): number {
+        return this.regionData.area;
+    }
+
+    /**
+     * The `boundRect` of the component. Defined through the `regionaData`.
+     * @remarks Returns the `Rect` object of the same `width` and `height` as the component.
+     */
+    public get boundRect(): Rect {
+        return this.regionData.boundRect;
+    }
+
+    /**
+     * Reference to external callbacks collection.
+     */
+    private callbacks: IRegionCallbacks;
+
+    /**
+     * Creates a new UI component (part of the region).
+     * @param paper - The `Snap.Paper` object to draw on.
+     * @param paperRect - The parent bounding box for created component.
+     * @param regionData - The `RegionData` object shared across components. Used also for initial setup.
+     * @param callbacks - The external callbacks collection.
+     */
+    constructor(paper: Snap.Paper, paperRect: Rect, regionData: RegionData, callbacks: IRegionCallbacks = null) {
+        this.paper = paper;
+        this.paperRect = paperRect;
+        this.regionData = regionData;
+
+        this.callbacks = {
+            onChange: null,
+            onManipulationBegin: null,
+            onManipulationEnd: null,
+        };
+
+        if (callbacks !== null && callbacks !== undefined) {
+            if (callbacks.onManipulationBegin !== undefined) {
+                this.callbacks.onManipulationBegin = callbacks.onManipulationBegin;
+            }
+            if (callbacks.onManipulationEnd !== undefined) {
+                this.callbacks.onManipulationEnd = callbacks.onManipulationEnd;
+            }
+
+            if (callbacks.onChange !== undefined) {
+                this.callbacks.onChange = callbacks.onChange;
+            }
+        }
+    }
+
+    /**
+     * Switches the component presentstion to the hidden state.
+     */
+    public hide() {
+        this.node.node.setAttribute("visibility", "hidden");
+        this.isVisible = false;
+    }
+
+    /**
+     * Switches the component presentation to the visibile state.
+     */
+    public show() {
+        this.node.node.setAttribute("visibility", "visible");
+        this.isVisible = true;
+    }
+
+    /**
+     * Selects the component.
+     */
+    public select() {
+        this.isSelected = true;
+        this.node.addClass("selected");
+    }
+
+    /**
+     * Unselecets the component.
+     */
+    public unselect() {
+        this.isSelected = false;
+        this.node.removeClass("selected");
+    }
+
+    /**
+     * Switches the component to the frozen state.
+     */
+    public freeze() {
+        this.isFrozen = true;
+    }
+
+    /**
+     * Switches the component to the unfrozen state.
+     */
+    public unfreeze() {
+        this.isFrozen = false;
+    }
+
+    /**
+     * Moves the component to specified location
+     * @param point - The new component location.
+     */
+    public move(point: IPoint2D): void;
+
+    /**
+     * Moves the component to specified `x` and `y` coordinates.
+     * @param x - The new `x`-coordinate.
+     * @param y - The new `y`-coordinate.
+     */
+    public move(x: number, y: number): void;
+
+    public move(arg1: any, arg2?: any): void {
+        this.regionData.move(arg1, arg2);
+        this.redraw();
+    }
+
+    /**
+     * Redraws the visual of the component. Should be redefined in child classes.
+     */
+    public abstract redraw(): void;
+
+    /**
+     * Resizes the component to specified `width` and `height`.
+     * @param width - The new `width` for the component.
+     * @param height - The new `height` for the component.
+     */
+    public resize(width: number, height: number) {
+        this.regionData.resize(width, height);
+        this.redraw();
+    }
+
+    /**
+     * Resizes the bounding box for the component.
+     * @param width - The new `width` of the bounding box.
+     * @param height - The new `height` of the bounding box.
+     */
+    public resizePaper(width: number, height: number) {
+        this.paperRect.resize(width, height);
+    }
+
+    /**
+     * The wrapper around external `onChange` callback. Checks whether the callback is defined.
+     * @param region - Reference to the component.
+     * @param regionData - The `RegionData` object to be passed.
+     * @param eventType - The event type.
+     * @param multiSelection - The flag for multiple regions selection.
+     */
+    protected onChange(region: RegionComponent, regionData: RegionData, eventType?: ChangeEventType,
+                       multiSelection?: boolean) {
+        if (this.callbacks.onChange !== null && this.callbacks.onChange !== undefined) {
+            this.callbacks.onChange(region, regionData, eventType, multiSelection);
+        }
+    }
+
+    /**
+     * The wrapper around external `onManipulationBegin` callback. Checks whether the callback is defined.
+     * @param region - Reference to the component.
+     */
+    protected onManipulationBegin(region?: RegionComponent) {
+        if (this.callbacks.onManipulationBegin !== null && this.callbacks.onManipulationBegin !== undefined) {
+            this.callbacks.onManipulationBegin(region);
+        }
+    }
+
+    /**
+     * The wrapper around external `onManupulationEnd` callback. Checks whether the callback is defined.
+     * @param region - Reference to the component.
+     */
+    protected onManipulationEnd(region?: RegionComponent) {
+        if (this.callbacks.onManipulationEnd !== null && this.callbacks.onManipulationEnd !== undefined) {
+            this.callbacks.onManipulationEnd(region);
+        }
+    }
+
+    /**
+     * Subscrubes the component elements according to provided event descriptors. Binds to the `this` object.
+     * @param listeners - The collection of event descriptors.
+     */
+    protected subscribeToEvents(listeners: IEventDescriptor[]) {
+        listeners.forEach((e) => {
+            e.base.addEventListener(e.event, this.makeFreezable(e.listener.bind(this), e.bypass));
+        });
+    }
+
+    /**
+     * A helper function to make event listeners froozen if the component state is frozen.
+     * @param f - Function to wrap.
+     * @param bypass - A flag whether event should bypass.
+     */
+    protected makeFreezable(f: (args: PointerEvent | KeyboardEvent) => void, bypass: boolean = false) {
+        return (args: PointerEvent | KeyboardEvent) => {
+            if (!this.isFrozen || bypass) {
+                f(args);
+            }
+        };
+    }
+}

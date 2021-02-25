@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
-import { SelectionMode } from "vott-ct/lib/js/CanvasTools/Interface/ISelectorSettings";
+import { SelectionMode } from "../../../../CanvasTools/Interface/ISelectorSettings";
 import HtmlFileReader from "../../../../common/htmlFileReader";
 import { strings } from "../../../../common/strings";
 import {

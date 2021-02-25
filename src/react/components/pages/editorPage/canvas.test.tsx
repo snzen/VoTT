@@ -8,14 +8,14 @@ import Canvas, { ICanvasProps, ICanvasState } from "./canvas";
 import CanvasHelpers from "./canvasHelpers";
 import { appInfo } from "../../../../common/appInfo";
 
-jest.mock("vott-ct/lib/js/CanvasTools/CanvasTools.Editor");
-import { Editor } from "vott-ct/lib/js/CanvasTools/CanvasTools.Editor";
+jest.mock("../CanvasTools/CanvasTools.Editor");
+import { Editor } from "../../../../CanvasTools/CanvasTools.Editor";
 
-jest.mock("vott-ct/lib/js/CanvasTools/Region/RegionsManager");
-import { RegionsManager } from "vott-ct/lib/js/CanvasTools/Region/RegionsManager";
+jest.mock("../CanvasTools/Region/RegionsManager");
+import { RegionsManager } from "../../../../CanvasTools/Region/RegionsManager";
 import Confirm, { IConfirmProps } from "../../common/confirm/confirm";
-import { Rect } from "vott-ct/lib/js/CanvasTools/Core/Rect";
-import { SelectionMode } from "vott-ct/lib/js/CanvasTools/Interface/ISelectorSettings";
+import { Rect } from "../../../../CanvasTools/Core/Rect";
+import { SelectionMode } from "../../../../CanvasTools/Interface/ISelectorSettings";
 
 describe("Editor Canvas", () => {
     function createComponent(canvasProps?: ICanvasProps, assetPreviewProps?: IAssetPreviewProps)
