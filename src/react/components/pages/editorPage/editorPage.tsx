@@ -175,6 +175,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
                     document.getElementById("lblTagsOn").classList.toggle("fa-font", !isOff)
                     document.getElementById("lblTagsOn").classList.toggle("fa-strikethrough", isOff)
+
+                    try {
+                        this.canvas.current.forceResize()
+                    } catch { }
                 }
             })
     }

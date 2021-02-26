@@ -102,7 +102,7 @@ export class RegionsManager {
 
             if (typeof callbacks.onChange === "function") {
                 this.callbacks.onChange = (region: Region, regionData: RegionData, state: ChangeEventType,
-                                           multiSelection: boolean = false) => {
+                    multiSelection: boolean = false) => {
                     this.onRegionChange(region, regionData, state, multiSelection);
                     callbacks.onChange(region, regionData, state, multiSelection);
                 };
@@ -137,8 +137,13 @@ export class RegionsManager {
         } else if (regionData.type === RegionDataType.Polygon) {
             this.addPolygonRegion(id, regionData, tagsDescriptor);
         }
-        this.sortRegionsByArea();
-        this.redrawAllRegions();
+
+        const fastRender = localStorage.getItem("hide-tag-labels") == "1"
+        
+        if (!fastRender) {
+            this.sortRegionsByArea();
+            this.redrawAllRegions();
+        }
     }
 
     /**
@@ -151,7 +156,7 @@ export class RegionsManager {
         this.menu.hide();
 
         const region = new RectRegion(this.paper, this.paperRect, regionData, this.callbacks, id, tagsDescriptor,
-                                      this.tagsUpdateOptions);
+            this.tagsUpdateOptions);
 
         this.registerRegion(region);
     }
@@ -166,7 +171,7 @@ export class RegionsManager {
         this.menu.hide();
 
         const region = new PointRegion(this.paper, this.paperRect, regionData, this.callbacks, id, tagsDescriptor,
-                                       this.tagsUpdateOptions);
+            this.tagsUpdateOptions);
 
         this.registerRegion(region);
     }
@@ -181,7 +186,7 @@ export class RegionsManager {
         this.menu.hide();
 
         const region = new PolylineRegion(this.paper, this.paperRect, regionData, this.callbacks, id, tagsDescriptor,
-                                          this.tagsUpdateOptions);
+            this.tagsUpdateOptions);
 
         this.registerRegion(region);
     }
@@ -196,31 +201,31 @@ export class RegionsManager {
         this.menu.hide();
 
         const region = new PolygonRegion(this.paper, this.paperRect, regionData, this.callbacks, id, tagsDescriptor,
-                                         this.tagsUpdateOptions);
+            this.tagsUpdateOptions);
 
         this.registerRegion(region);
     }
 
-/*     // REGION CREATION
-    public drawRegion(x: number, y: number, rect: Rect, id: string, tagsDescriptor: TagsDescriptor) {
-        this.menu.hide();
-        let region = new RectRegion(this.paper, this.paperRect, new Point2D(x, y), rect, id, tagsDescriptor,
-            this.onManipulationBegin_local.bind(this),
-            this.onManipulationEnd_local.bind(this),
-            this.tagsUpdateOptions);
-        region.area = rect.height * rect.width;
-        region.onChange = this.onRegionChange.bind(this);
-
-        region.updateTags(region.tags, this.tagsUpdateOptions);
-        this.regionManagerLayer.add(region.node);
-        this.regions.push(region);
-        // Need to do a check for invalid stacking from user generated or older saved json
-        if (this.regions.length > 1) {
-            this.sortRegionsByArea();
-            this.redrawAllRegions();
-        }
-        //this.menu.showOnRegion(region);
-    } */
+    /*     // REGION CREATION
+        public drawRegion(x: number, y: number, rect: Rect, id: string, tagsDescriptor: TagsDescriptor) {
+            this.menu.hide();
+            let region = new RectRegion(this.paper, this.paperRect, new Point2D(x, y), rect, id, tagsDescriptor,
+                this.onManipulationBegin_local.bind(this),
+                this.onManipulationEnd_local.bind(this),
+                this.tagsUpdateOptions);
+            region.area = rect.height * rect.width;
+            region.onChange = this.onRegionChange.bind(this);
+    
+            region.updateTags(region.tags, this.tagsUpdateOptions);
+            this.regionManagerLayer.add(region.node);
+            this.regions.push(region);
+            // Need to do a check for invalid stacking from user generated or older saved json
+            if (this.regions.length > 1) {
+                this.sortRegionsByArea();
+                this.redrawAllRegions();
+            }
+            //this.menu.showOnRegion(region);
+        } */
 
     /**
      * Redraws all regions. Reinserts regions in actual order.
@@ -641,7 +646,7 @@ export class RegionsManager {
      * @param multiSelection - Flag for multiselection.
      */
     private onRegionChange(region: Region, regionData: RegionData, state: ChangeEventType,
-                           multiSelection: boolean = false) {
+        multiSelection: boolean = false) {
         // resize or drag begin
         if (state === ChangeEventType.MOVEBEGIN) {
             if (!multiSelection) {
@@ -666,9 +671,13 @@ export class RegionsManager {
             if (this.justManipulated) {
                 region.select();
                 this.menu.showOnRegion(region);
-                this.sortRegionsByArea();
-                this.redrawAllRegions();
-
+                const fastRender = localStorage.getItem("hide-tag-labels") == "1"
+        
+                if (!fastRender) {
+                    this.sortRegionsByArea();
+                    this.redrawAllRegions();
+                }
+   
                 if ((typeof this.callbacks.onRegionMoveEnd) === "function") {
                     this.callbacks.onRegionMoveEnd(region.ID, regionData);
                 }
