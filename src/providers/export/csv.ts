@@ -1,9 +1,17 @@
 import _ from "lodash";
 import { ExportProvider } from "./exportProvider";
-import { IProject, IExportProviderOptions } from "../../models/applicationState";
+import { IProject, IExportProviderOptions, AssetState } from "../../models/applicationState";
 import Guard from "../../common/guard";
 import HtmlFileReader from "../../common/htmlFileReader";
 import json2csv, { Parser } from "json2csv";
+import { toast } from "react-toastify";
+import { refreshApplicationAction, reloadApplication } from "../../redux/actions/applicationActions";
+
+
+import IApplicationActions, * as applicationActions from "../../redux/actions/applicationActions";
+import IProjectActions, * as projectActions from "../../redux/actions/projectActions";
+import { EDITOR_PAGE_INSTANCE } from "../../react/components/pages/editorPage/editorPage";
+import { EDITOR_SIDEBAR_INSTANCE } from "../../react/components/pages/editorPage/editorSideBar";
 
 /**
  * Options for CSV Export Provider
@@ -30,7 +38,50 @@ export class CsvExportProvider extends ExportProvider<ICsvExportProviderOptions>
         const results = await this.getAssetsForExport();
         const dataItems = [];
 
-        await results.forEachAsync(async (assetMetadata) => {
+        for (const assetMetadata of results) {
+            const assetProps = await HtmlFileReader.readAssetAttributes(assetMetadata.asset);
+
+            // Check for out of bounds boxes
+            console.log("Export check")
+            let skipAsset = false
+            for (const reg of assetMetadata.regions) {
+                for (const tag of reg.tags) {
+                    const maxx = (reg.boundingBox.left + reg.boundingBox.width)
+                    const maxy = (reg.boundingBox.top + reg.boundingBox.height)
+                    const W = assetProps.width
+                    const H = assetProps.height
+                    if (maxx > W || maxy > H) {
+                        // console.log(maxx + "/" + W + " | " + maxy + "/" + H + "  " + assetMetadata.asset.name)
+                        skipAsset = true
+                        break
+                    }
+                }
+                if (skipAsset) break
+            }
+
+            if (skipAsset) {
+                for (const ar of assetMetadata.regions) { assetMetadata.regions.pop() }
+                assetMetadata.asset.state = AssetState.NotVisited
+                this.assetService.save(assetMetadata)
+                EDITOR_SIDEBAR_INSTANCE.onAssetClicked(assetMetadata.asset)
+                const err = "Out Of bounds" + assetMetadata.asset.name
+                console.log(err)
+                toast.error(err, { autoClose: 15000 })
+                continue
+            }
+
+            if (assetMetadata.asset.size.width != assetProps.width ||
+                assetMetadata.asset.size.height != assetProps.height) {
+                const err = "Resized image " + assetMetadata.asset.name
+                for (const ar of assetMetadata.regions) { assetMetadata.regions.pop() }
+                assetMetadata.asset.state = AssetState.NotVisited
+                this.assetService.save(assetMetadata)
+                EDITOR_SIDEBAR_INSTANCE.onAssetClicked(assetMetadata.asset)
+                console.log(err)
+                toast.error(err, { autoClose: 15000 })
+                continue
+            }
+
             if (this.options.includeImages) {
                 // Write Image
                 const arrayBuffer = await HtmlFileReader.getAssetArray(assetMetadata.asset);
@@ -54,10 +105,11 @@ export class CsvExportProvider extends ExportProvider<ICsvExportProviderOptions>
                         ymax: region.boundingBox.top + region.boundingBox.height,
                         label: tag,
                     };
+
                     dataItems.push(dataItem);
                 });
             });
-        });
+        }
 
         // Configure CSV options
         const csvOptions: json2csv.Options<{}> = {

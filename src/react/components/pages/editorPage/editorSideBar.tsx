@@ -4,6 +4,8 @@ import { IAsset, AssetState, ISize } from "../../../../models/applicationState";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import { strings } from "../../../../common/strings";
 
+export let EDITOR_SIDEBAR_INSTANCE = null
+
 /**
  * Properties for Editor Side Bar
  * @member assets - Array of assets to be previewed
@@ -32,6 +34,11 @@ export interface IEditorSideBarState {
  * @description - Side bar for editor page
  */
 export default class EditorSideBar extends React.Component<IEditorSideBarProps, IEditorSideBarState> {
+    constructor(props){
+        super(props)
+        EDITOR_SIDEBAR_INSTANCE = this
+    } 
+
     public state: IEditorSideBarState = {
         scrollToIndex: this.props.selectedAsset
             ? this.props.assets.findIndex((asset) => asset.id === this.props.selectedAsset.id)
@@ -81,7 +88,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         return width / (4 / 3) + 16;
     }
 
-    private selectAsset = (selectedAsset: IAsset): void => {
+    public selectAsset = (selectedAsset: IAsset): void => {
         const scrollToIndex = this.props.assets.findIndex((asset) => asset.id === selectedAsset.id);
 
         this.setState({
@@ -91,7 +98,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         });
     }
 
-    private onAssetClicked = (asset: IAsset): void => {
+    public onAssetClicked = (asset: IAsset): void => {
         if (this.props.onBeforeAssetSelected) {
             if (!this.props.onBeforeAssetSelected()) {
                 return;
@@ -126,7 +133,7 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         );
     }
 
-    private renderBadges = (asset: IAsset): JSX.Element => {
+    public renderBadges = (asset: IAsset): JSX.Element => {
         switch (asset.state) {
             case AssetState.Tagged:
                 return (

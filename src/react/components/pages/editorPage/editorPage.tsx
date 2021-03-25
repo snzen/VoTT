@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { conformsTo } from "lodash";
 import React, { RefObject } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
@@ -31,6 +31,13 @@ import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { ActiveLearningService } from "../../../../services/activeLearningService";
 import { toast } from "react-toastify";
+import { EDITOR_SIDEBAR_INSTANCE } from "../../../../react/components/pages/editorPage/editorSideBar";
+import { ExportAssetState, ExportProvider } from "../../../../providers/export/exportProvider";
+import { ExportProviderFactory } from "../../../../providers/export/exportProviderFactory";
+import { CsvExportProvider, ICsvExportProviderOptions } from "../../../../providers/export/csv";
+
+
+export let EDITOR_PAGE_INSTANCE = null
 
 /**
  * Properties for Editor Page
@@ -101,6 +108,11 @@ function mapDispatchToProps(dispatch) {
  */
 @connect(mapStateToProps, mapDispatchToProps)
 export default class EditorPage extends React.Component<IEditorPageProps, IEditorPageState> {
+    constructor(props) {
+        super(props);
+        EDITOR_PAGE_INSTANCE = this
+    }
+
     public state: IEditorPageState = {
         selectedTag: null,
         lockedTags: [],
@@ -139,6 +151,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         this.filterByTagInput = document.getElementsByName('filterByTag').item(0) as HTMLInputElement
         const downloadMetaBtn = document.getElementById('downloadMetaBtn');
         const toggleLabelsBtn = document.getElementById('toggleTagsBtn');
+        const reloadBtn = document.getElementById('reloadBtn');
 
         const KEY = "hide-tag-labels"
         let isOff = localStorage.getItem(KEY) === "1"
@@ -181,6 +194,80 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     } catch { }
                 }
             })
+
+        if (reloadBtn)
+            reloadBtn.addEventListener("click", async () => {
+                // await this.props.applicationActions.reloadApplication()
+                // if (this.props.project.exportFormat.providerType != 'csv') {
+                //     toast.error("Failed to check out-of bounds")
+                //     return
+                // }
+                const options: ICsvExportProviderOptions = {
+                    assetState: ExportAssetState.Tagged,
+                    includeImages: false,
+                };
+                const exportProvider = new CsvExportProvider(this.props.project, options);
+                const assets = await exportProvider.getAssetsForExport();
+                // const assetService = new AssetService(this.props.project);
+                const assetService = exportProvider.assetService;
+                let isOk = true
+
+                for (const assetMetadata of assets) {
+                    const assetProps = await HtmlFileReader.readAssetAttributes(assetMetadata.asset);
+
+                    // Check for out of bounds boxes
+                    let skipAsset = false
+                    for (const reg of assetMetadata.regions) {
+                        for (const tag of reg.tags) {
+                            const maxx = (reg.boundingBox.left + reg.boundingBox.width)
+                            const maxy = (reg.boundingBox.top + reg.boundingBox.height)
+                            const W = assetProps.width
+                            const H = assetProps.height
+                            if (maxx > W || maxy > H) {
+                                // console.log(maxx + "/" + W + " | " + maxy + "/" + H + "  " + assetMetadata.asset.name)
+                                skipAsset = true
+                                break
+                            }
+                        }
+                        if (skipAsset) break
+                    }
+
+                    if (skipAsset) {
+                        for (const ar of assetMetadata.regions) { assetMetadata.regions.pop() }
+                        assetMetadata.asset.state = AssetState.NotVisited
+                        assetMetadata.asset.size.width = assetProps.width
+                        assetMetadata.asset.size.height = assetProps.height
+                        await assetService.save(assetMetadata)
+                        await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata)
+                        await EDITOR_SIDEBAR_INSTANCE.onAssetClicked(assetMetadata.asset)
+                        const err = "Out Of bounds" + assetMetadata.asset.name
+                        console.log(err)
+                        toast.error(err, { autoClose: 15000 })
+                        isOk = false
+                        continue
+                    }
+
+                    if (assetMetadata.asset.size.width != assetProps.width ||
+                        assetMetadata.asset.size.height != assetProps.height) {
+                        const err = "Resized image " + assetMetadata.asset.name
+                        for (const ar of assetMetadata.regions) { assetMetadata.regions.pop() }
+                        assetMetadata.asset.state = AssetState.NotVisited
+                        assetMetadata.asset.size.width = assetProps.width
+                        assetMetadata.asset.size.height = assetProps.height
+                        await assetService.save(assetMetadata)
+                        await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata)
+                        await EDITOR_SIDEBAR_INSTANCE.onAssetClicked(assetMetadata.asset)
+                        console.log(err)
+                        toast.error(err, { autoClose: 15000 })
+                        isOk = false
+                        continue
+                    }
+
+                    console.log("Export checked" + assetMetadata.asset.name)
+                }
+
+                if (isOk === true) toast.info("Frame resize check: OK");
+            });
     }
 
     private async getMeta(THIS) {
@@ -291,8 +378,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 })}
                 <SplitPane split="vertical"
                     defaultSize={this.state.thumbnailSize.width}
-                    minSize={100}
-                    maxSize={400}
+                    minSize={50}
+                    maxSize={800}
                     paneStyle={{ display: "flex" }}
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
@@ -526,7 +613,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * Raised when the selected asset has been changed.
      * This can either be a parent or child asset
      */
-    private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
+    public onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // If the asset contains any regions without tags, don't proceed.
         const regionsWithoutTags = assetMetadata.regions.filter((region) => region.tags.length === 0);
 
@@ -722,7 +809,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         return this.state.isValid;
     }
 
-    private selectAsset = async (asset: IAsset): Promise<void> => {
+    public selectAsset = async (asset: IAsset): Promise<void> => {
+        console.log("selecting asset")
         // Nothing to do if we are already on the same asset.
         if (this.state.selectedAsset && this.state.selectedAsset.asset.id === asset.id) {
             return;
@@ -751,7 +839,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         });
     }
 
-    private loadProjectAssets = async (): Promise<void> => {
+    public loadProjectAssets = async (): Promise<void> => {
         if (this.loadingProjectAssets || this.state.assets.length > 0) {
             return;
         }
@@ -786,7 +874,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     /**
      * Updates the root asset list from the project assets
      */
-    private updateRootAssets = () => {
+    public updateRootAssets = () => {
         const updatedAssets = [...this.state.assets];
         updatedAssets.forEach((asset) => {
             const projectAsset = this.props.project.assets[asset.id];

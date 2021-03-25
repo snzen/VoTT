@@ -103,7 +103,7 @@ export default class AppSettingsPage extends React.Component<IAppSettingsProps> 
         await this.props.actions.toggleDevTools(!this.props.appSettings.devToolsEnabled);
     }
 
-    private reloadApp = async () => {
+    public reloadApp = async () => {
         await this.props.actions.reloadApplication();
     }
 }
