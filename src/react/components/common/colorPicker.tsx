@@ -30,7 +30,7 @@ export class ColorPicker extends React.Component<IColorPickerProps> {
                     color={{hex: this.props.color}}
                     onChangeComplete={this.onChange}
                     colors={this.props.colors}
-                    width={160}
+                    width={300}
                     styles={{
                         default: {
                             card: {

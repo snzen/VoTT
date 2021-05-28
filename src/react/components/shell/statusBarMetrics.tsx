@@ -51,6 +51,9 @@ export class StatusBarMetrics extends React.Component<IStatusBarMetricsProps> {
                     <i className="fas fa-hashtag"></i>
                     <span className="label" id="maxNumberOfTagsPerObject" ></span>
                 </li>
+                <li title="Current asset" >
+                    <span className="label" style={{userSelect : 'text'}} id="currentAssetName" ></span>
+                </li>
             </ul>
         );
     }

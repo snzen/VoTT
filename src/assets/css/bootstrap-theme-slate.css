@@ -10021,3 +10021,8 @@ legend {
   padding-right: 3px;
   border-radius: 4px;
 }
+
+#currentAssetName::selection{
+  background-color: red;
+  color: white;
+}
