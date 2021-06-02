@@ -219,8 +219,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                     let skipAsset = false
                     for (const reg of assetMetadata.regions) {
                         for (const tag of reg.tags) {
-                            const maxx = Math.floor(reg.boundingBox.left + reg.boundingBox.width)
-                            const maxy = Math.floor(reg.boundingBox.top + reg.boundingBox.height)
+                            const maxx = reg.boundingBox.left + reg.boundingBox.width
+                            const maxy = reg.boundingBox.top + reg.boundingBox.height
                             const W = assetProps.width
                             const H = assetProps.height
                             if (maxx > W || maxy > H) {
